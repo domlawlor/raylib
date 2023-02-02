@@ -72,6 +72,8 @@
     #define BEZIER_LINE_DIVISIONS       24      // Bezier line divisions
 #endif
 
+namespace Raylib
+{
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -105,7 +107,7 @@ void SetShapesTexture(Texture2D texture, Rectangle source)
 // Draw a pixel
 void DrawPixel(int posX, int posY, Color color)
 {
-  DrawPixelV((Vector2){ posX, posY }, color);
+  DrawPixelV(CLITERAL(Vector2){ (float)posX, (float)posY }, color);
 }
 
 // Draw a pixel (Vector version)
@@ -340,7 +342,7 @@ void DrawLineStrip(Vector2 *points, int pointCount, Color color)
 // Draw a color-filled circle
 void DrawCircle(int centerX, int centerY, float radius, Color color)
 {
-    DrawCircleV((Vector2){ (float)centerX, (float)centerY }, radius, color);
+    DrawCircleV(CLITERAL(Vector2){ (float)centerX, (float)centerY }, radius, color);
 }
 
 // Draw a piece of a circle
@@ -721,20 +723,20 @@ void DrawRingLines(Vector2 center, float innerRadius, float outerRadius, float s
 // Draw a color-filled rectangle
 void DrawRectangle(int posX, int posY, int width, int height, Color color)
 {
-    DrawRectangleV((Vector2){ (float)posX, (float)posY }, (Vector2){ (float)width, (float)height }, color);
+    DrawRectangleV(CLITERAL(Vector2){ (float)posX, (float)posY }, CLITERAL(Vector2){ (float)width, (float)height }, color);
 }
 
 // Draw a color-filled rectangle (Vector version)
 // NOTE: On OpenGL 3.3 and ES2 we use QUADS to avoid drawing order issues
 void DrawRectangleV(Vector2 position, Vector2 size, Color color)
 {
-    DrawRectanglePro((Rectangle){ position.x, position.y, size.x, size.y }, (Vector2){ 0.0f, 0.0f }, 0.0f, color);
+    DrawRectanglePro(CLITERAL(Rectangle){ position.x, position.y, size.x, size.y }, CLITERAL(Vector2){ 0.0f, 0.0f }, 0.0f, color);
 }
 
 // Draw a color-filled rectangle
 void DrawRectangleRec(Rectangle rec, Color color)
 {
-    DrawRectanglePro(rec, (Vector2){ 0.0f, 0.0f }, 0.0f, color);
+    DrawRectanglePro(rec, CLITERAL(Vector2){ 0.0f, 0.0f }, 0.0f, color);
 }
 
 // Draw a color-filled rectangle with pro parameters
@@ -750,10 +752,10 @@ void DrawRectanglePro(Rectangle rec, Vector2 origin, float rotation, Color color
     {
         float x = rec.x - origin.x;
         float y = rec.y - origin.y;
-        topLeft = (Vector2){ x, y };
-        topRight = (Vector2){ x + rec.width, y };
-        bottomLeft = (Vector2){ x, y + rec.height };
-        bottomRight = (Vector2){ x + rec.width, y + rec.height };
+        topLeft = CLITERAL(Vector2){ x, y };
+        topRight = CLITERAL(Vector2){ x + rec.width, y };
+        bottomLeft = CLITERAL(Vector2){ x, y + rec.height };
+        bottomRight = CLITERAL(Vector2){ x + rec.width, y + rec.height };
     }
     else
     {
@@ -821,14 +823,14 @@ void DrawRectanglePro(Rectangle rec, Vector2 origin, float rotation, Color color
 // NOTE: Gradient goes from bottom (color1) to top (color2)
 void DrawRectangleGradientV(int posX, int posY, int width, int height, Color color1, Color color2)
 {
-    DrawRectangleGradientEx((Rectangle){ (float)posX, (float)posY, (float)width, (float)height }, color1, color2, color2, color1);
+    DrawRectangleGradientEx(CLITERAL(Rectangle){ (float)posX, (float)posY, (float)width, (float)height }, color1, color2, color2, color1);
 }
 
 // Draw a horizontal-gradient-filled rectangle
 // NOTE: Gradient goes from bottom (color1) to top (color2)
 void DrawRectangleGradientH(int posX, int posY, int width, int height, Color color1, Color color2)
 {
-    DrawRectangleGradientEx((Rectangle){ (float)posX, (float)posY, (float)width, (float)height }, color1, color1, color2, color2);
+    DrawRectangleGradientEx(CLITERAL(Rectangle){ (float)posX, (float)posY, (float)width, (float)height }, color1, color1, color2, color2);
 }
 
 // Draw a gradient-filled rectangle
@@ -1145,7 +1147,7 @@ void DrawRectangleRoundedLines(Rectangle rec, float roundness, int segments, flo
     // Not a rounded rectangle
     if (roundness <= 0.0f)
     {
-        DrawRectangleLinesEx((Rectangle){rec.x-lineThick, rec.y-lineThick, rec.width+2*lineThick, rec.height+2*lineThick}, lineThick, color);
+        DrawRectangleLinesEx(CLITERAL(Rectangle){rec.x-lineThick, rec.y-lineThick, rec.width+2*lineThick, rec.height+2*lineThick}, lineThick, color);
         return;
     }
 
@@ -1837,5 +1839,7 @@ static float EaseCubicInOut(float t, float b, float c, float d)
 
     return 0.5f*c*(t*t*t + 2.0f) + b;
 }
+
+} // namespace Raylib
 
 #endif      // SUPPORT_MODULE_RSHAPES

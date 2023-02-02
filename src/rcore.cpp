@@ -165,9 +165,16 @@
         #ifndef MAX_PATH
             #define MAX_PATH 1025
         #endif
+#ifdef __cplusplus
+extern "C"
+{
+#endif
     __declspec(dllimport) unsigned long __stdcall GetModuleFileNameA(void *hModule, void *lpFilename, unsigned long nSize);
     __declspec(dllimport) unsigned long __stdcall GetModuleFileNameW(void *hModule, void *lpFilename, unsigned long nSize);
     __declspec(dllimport) int __stdcall WideCharToMultiByte(unsigned int cp, unsigned long flags, void *widestr, int cchwide, void *str, int cbmb, void *defchar, int *used_default);
+#ifdef __cplusplus
+}
+#endif
     #elif defined(__linux__)
         #include <unistd.h>
     #elif defined(__APPLE__)
@@ -225,9 +232,16 @@
         #include "GLFW/glfw3native.h"
 
         #if defined(SUPPORT_WINMM_HIGHRES_TIMER) && !defined(SUPPORT_BUSY_WAIT_LOOP)
+#ifdef __cplusplus
+		extern "C"
+		{
+#endif
             // NOTE: Those functions require linking with winmm library
             unsigned int __stdcall timeBeginPeriod(unsigned int uPeriod);
             unsigned int __stdcall timeEndPeriod(unsigned int uPeriod);
+#ifdef __cplusplus
+		}
+#endif
         #endif
     #endif
     #if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__)
@@ -296,6 +310,22 @@
     #include <emscripten/emscripten.h>  // Emscripten functionality for C
     #include <emscripten/html5.h>       // Emscripten HTML5 library
 #endif
+
+
+#if defined(_WIN32)
+// NOTE: We declare Sleep() function symbol to avoid including windows.h (kernel32.lib linkage required)
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+	void __stdcall Sleep(unsigned long msTimeout);              // Required for: WaitTime()
+#ifdef __cplusplus
+}
+#endif
+#endif
+
+namespace Raylib
+{
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -693,11 +723,6 @@ static void RecordAutomationEvent(unsigned int frame);      // Record frame even
 static void PlayAutomationEvent(unsigned int frame);        // Play frame events (from internal events array)
 #endif
 
-#if defined(_WIN32)
-// NOTE: We declare Sleep() function symbol to avoid including windows.h (kernel32.lib linkage required)
-void __stdcall Sleep(unsigned long msTimeout);              // Required for: WaitTime()
-#endif
-
 #if !defined(SUPPORT_MODULE_RTEXT)
 const char *TextFormat(const char *text, ...);       // Formatting of text with variables to 'embed'
 #endif // !SUPPORT_MODULE_RTEXT
@@ -766,7 +791,7 @@ void InitWindow(int width, int height, const char *title)
     // Initialize global input state
     memset(&CORE.Input, 0, sizeof(CORE.Input));
     CORE.Input.Keyboard.exitKey = KEY_ESCAPE;
-    CORE.Input.Mouse.scale = (Vector2){ 1.0f, 1.0f };
+    CORE.Input.Mouse.scale = CLITERAL(Vector2){ 1.0f, 1.0f };
     CORE.Input.Mouse.cursor = MOUSE_CURSOR_ARROW;
     CORE.Input.Gamepad.lastButtonPressed = 0;       // GAMEPAD_BUTTON_UNKNOWN
 #if defined(SUPPORT_EVENTS_WAITING)
@@ -865,7 +890,7 @@ void InitWindow(int width, int height, const char *title)
     #if defined(SUPPORT_MODULE_RSHAPES)
     Rectangle rec = GetFontDefault().recs[95];
     // NOTE: We setup a 1px padding on char rectangle to avoid pixel bleeding on MSAA filtering
-    SetShapesTexture(GetFontDefault().texture, (Rectangle){ rec.x + 1, rec.y + 1, rec.width - 2, rec.height - 2 }); // WARNING: Module required: rshapes
+    SetShapesTexture(GetFontDefault().texture, CLITERAL(Rectangle){ rec.x + 1, rec.y + 1, rec.width - 2, rec.height - 2 }); // WARNING: Module required: rshapes
     #endif
 #else
     #if defined(SUPPORT_MODULE_RSHAPES)
@@ -1764,11 +1789,11 @@ Vector2 GetMonitorPosition(int monitor)
         int x, y;
         glfwGetMonitorPos(monitors[monitor], &x, &y);
 
-        return (Vector2){ (float)x, (float)y };
+        return CLITERAL(Vector2){ (float)x, (float)y };
     }
     else TRACELOG(LOG_WARNING, "GLFW: Failed to find selected monitor");
 #endif
-    return (Vector2){ 0, 0 };
+    return CLITERAL(Vector2){ 0, 0 };
 }
 
 // Get selected monitor width (currently used by monitor)
@@ -1876,7 +1901,7 @@ Vector2 GetWindowPosition(void)
 #if defined(PLATFORM_DESKTOP)
     glfwGetWindowPos(CORE.Window.handle, &x, &y);
 #endif
-    return (Vector2){ (float)x, (float)y };
+    return CLITERAL(Vector2){ (float)x, (float)y };
 }
 
 // Get window scale DPI factor for current monitor
@@ -2607,13 +2632,13 @@ Ray GetMouseRay(Vector2 mouse, Camera camera)
     }
 
     // Unproject far/near points
-    Vector3 nearPoint = Vector3Unproject((Vector3){ deviceCoords.x, deviceCoords.y, 0.0f }, matProj, matView);
-    Vector3 farPoint = Vector3Unproject((Vector3){ deviceCoords.x, deviceCoords.y, 1.0f }, matProj, matView);
+    Vector3 nearPoint = Vector3Unproject(CLITERAL(Vector3){ deviceCoords.x, deviceCoords.y, 0.0f }, matProj, matView);
+    Vector3 farPoint = Vector3Unproject(CLITERAL(Vector3){ deviceCoords.x, deviceCoords.y, 1.0f }, matProj, matView);
 
     // Unproject the mouse cursor in the near plane.
     // We need this as the source position because orthographic projects, compared to perspect doesn't have a
     // convergence point, meaning that the "eye" of the camera is more like a plane than a point.
-    Vector3 cameraPlanePointerPos = Vector3Unproject((Vector3){ deviceCoords.x, deviceCoords.y, -1.0f }, matProj, matView);
+    Vector3 cameraPlanePointerPos = Vector3Unproject(CLITERAL(Vector3){ deviceCoords.x, deviceCoords.y, -1.0f }, matProj, matView);
 
     // Calculate normalized direction vector
     Vector3 direction = Vector3Normalize(Vector3Subtract(farPoint, nearPoint));
@@ -2652,7 +2677,7 @@ Matrix GetCameraMatrix2D(Camera2D camera)
     //   2. Rotate and Scale
     //   3. Move by -target
     Matrix matOrigin = MatrixTranslate(-camera.target.x, -camera.target.y, 0.0f);
-    Matrix matRotation = MatrixRotate((Vector3){ 0.0f, 0.0f, 1.0f }, camera.rotation*DEG2RAD);
+    Matrix matRotation = MatrixRotate(CLITERAL(Vector3){ 0.0f, 0.0f, 1.0f }, camera.rotation*DEG2RAD);
     Matrix matScale = MatrixScale(camera.zoom, camera.zoom, 1.0f);
     Matrix matTranslation = MatrixTranslate(camera.offset.x, camera.offset.y, 0.0f);
 
@@ -2717,18 +2742,18 @@ Vector2 GetWorldToScreenEx(Vector3 position, Camera camera, int width, int heigh
 Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera)
 {
     Matrix matCamera = GetCameraMatrix2D(camera);
-    Vector3 transform = Vector3Transform((Vector3){ position.x, position.y, 0 }, matCamera);
+    Vector3 transform = Vector3Transform(CLITERAL(Vector3){ position.x, position.y, 0 }, matCamera);
 
-    return (Vector2){ transform.x, transform.y };
+    return CLITERAL(Vector2){ transform.x, transform.y };
 }
 
 // Get the world space position for a 2d camera screen space position
 Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera)
 {
     Matrix invMatCamera = MatrixInvert(GetCameraMatrix2D(camera));
-    Vector3 transform = Vector3Transform((Vector3){ position.x, position.y, 0 }, invMatCamera);
+    Vector3 transform = Vector3Transform(CLITERAL(Vector3){ position.x, position.y, 0 }, invMatCamera);
 
-    return (Vector2){ transform.x, transform.y };
+    return CLITERAL(Vector2){ transform.x, transform.y };
 }
 
 // Set target FPS (maximum)
@@ -3792,7 +3817,7 @@ Vector2 GetMouseDelta(void)
 // Set mouse position XY
 void SetMousePosition(int x, int y)
 {
-    CORE.Input.Mouse.currentPosition = (Vector2){ (float)x, (float)y };
+    CORE.Input.Mouse.currentPosition = CLITERAL(Vector2){ (float)x, (float)y };
 #if defined(PLATFORM_DESKTOP) || defined(PLATFORM_WEB)
     // NOTE: emscripten not implemented
     glfwSetCursorPos(CORE.Window.handle, CORE.Input.Mouse.currentPosition.x, CORE.Input.Mouse.currentPosition.y);
@@ -3803,14 +3828,14 @@ void SetMousePosition(int x, int y)
 // NOTE: Useful when rendering to different size targets
 void SetMouseOffset(int offsetX, int offsetY)
 {
-    CORE.Input.Mouse.offset = (Vector2){ (float)offsetX, (float)offsetY };
+    CORE.Input.Mouse.offset = CLITERAL(Vector2){ (float)offsetX, (float)offsetY };
 }
 
 // Set mouse scaling
 // NOTE: Useful when rendering to different size targets
 void SetMouseScale(float scaleX, float scaleY)
 {
-    CORE.Input.Mouse.scale = (Vector2){ scaleX, scaleY };
+    CORE.Input.Mouse.scale = CLITERAL(Vector2){ scaleX, scaleY };
 }
 
 // Get mouse wheel movement Y
@@ -4948,7 +4973,7 @@ void PollInputEvents(void)
 
     // Register previous mouse wheel state
     CORE.Input.Mouse.previousWheelMove = CORE.Input.Mouse.currentWheelMove;
-    CORE.Input.Mouse.currentWheelMove = (Vector2){ 0.0f, 0.0f };
+    CORE.Input.Mouse.currentWheelMove = CLITERAL(Vector2){ 0.0f, 0.0f };
 
     // Register previous mouse position
     CORE.Input.Mouse.previousPosition = CORE.Input.Mouse.currentPosition;
@@ -4989,7 +5014,7 @@ void PollInputEvents(void)
 
             for (int k = 0; (buttons != NULL) && (k < GLFW_GAMEPAD_BUTTON_DPAD_LEFT + 1) && (k < MAX_GAMEPAD_BUTTONS); k++)
             {
-                GamepadButton button = -1;
+                GamepadButton button = (GamepadButton)-1;
 
                 switch (k)
                 {
@@ -5489,7 +5514,7 @@ static void MouseCursorPosCallback(GLFWwindow *window, double x, double y)
 // GLFW3 Scrolling Callback, runs on mouse wheel
 static void MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
-    CORE.Input.Mouse.currentWheelMove = (Vector2){ (float)xoffset, (float)yoffset };
+    CORE.Input.Mouse.currentWheelMove = CLITERAL(Vector2){ (float)xoffset, (float)yoffset };
 }
 
 // GLFW3 CursorEnter Callback, when cursor enters the window
@@ -7234,3 +7259,5 @@ const char *TextFormat(const char *text, ...)
     return currentBuffer;
 }
 #endif // !SUPPORT_MODULE_RTEXT
+
+} // namespace Raylib

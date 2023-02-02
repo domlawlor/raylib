@@ -52,6 +52,9 @@
     #define RLAPI       // Functions defined as 'extern' by default (implicit specifiers)
 #endif
 
+namespace Raylib
+{
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -814,5 +817,7 @@ static int get_pixel_data_size(int width, int height, int format)
 
     return data_size;
 }
+
+} // namespace Raylib
 
 #endif // RL_GPUTEX_IMPLEMENTATION

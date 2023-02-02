@@ -187,6 +187,9 @@ void SetCameraMoveControls(int keyFront, int keyBack,
 // PLAYER (used by camera)
 #define PLAYER_MOVEMENT_SENSITIVITY                     2.0f
 
+namespace Raylib
+{
+
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -554,5 +557,7 @@ void SetCameraMoveControls(int keyFront, int keyBack, int keyRight, int keyLeft,
     CAMERA.moveControl[MOVE_UP] = keyUp;
     CAMERA.moveControl[MOVE_DOWN] = keyDown;
 }
+
+} // namespace Raylib
 
 #endif // CAMERA_IMPLEMENTATION

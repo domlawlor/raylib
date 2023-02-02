@@ -99,6 +99,9 @@
     #define Vector3ToFloat(vec) (Vector3ToFloatV(vec).v)
 #endif
 
+namespace Raylib
+{
+
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -158,11 +161,16 @@ typedef struct float16 {
     float v[16];
 } float16;
 
+} // namespace Raylib
+
 #include <math.h>       // Required for: sinf(), cosf(), tan(), atan2f(), sqrtf(), floor(), fminf(), fmaxf(), fabs()
 
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Utils math
 //----------------------------------------------------------------------------------
+
+namespace Raylib
+{
 
 // Clamp float value
 RMAPI float Clamp(float value, float min, float max)
@@ -2121,5 +2129,7 @@ RMAPI int QuaternionEquals(Quaternion p, Quaternion q)
 
     return result;
 }
+
+} // namespace Raylib
 
 #endif  // RAYMATH_H

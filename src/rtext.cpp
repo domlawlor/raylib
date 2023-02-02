@@ -90,6 +90,9 @@
     #define MAX_TEXTSPLIT_COUNT                  128        // Maximum number of substrings to split: TextSplit()
 #endif
 
+namespace Raylib
+{
+
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -1061,7 +1064,7 @@ void DrawTextEx(Font font, const char *text, Vector2 position, float fontSize, f
         {
             if ((codepoint != ' ') && (codepoint != '\t'))
             {
-                DrawTextCodepoint(font, codepoint, (Vector2){ position.x + textOffsetX, position.y + textOffsetY }, fontSize, tint);
+                DrawTextCodepoint(font, codepoint, CLITERAL(Vector2){ position.x + textOffsetX, position.y + textOffsetY }, fontSize, tint);
             }
 
             if (font.glyphs[index].advanceX == 0) textOffsetX += ((float)font.recs[index].width*scaleFactor + spacing);
@@ -1081,7 +1084,7 @@ void DrawTextPro(Font font, const char *text, Vector2 position, Vector2 origin, 
         rlRotatef(rotation, 0.0f, 0.0f, 1.0f);
         rlTranslatef(-origin.x, -origin.y, 0.0f);
 
-        DrawTextEx(font, text, (Vector2){ 0.0f, 0.0f }, fontSize, spacing, tint);
+        DrawTextEx(font, text, CLITERAL(Vector2){ 0.0f, 0.0f }, fontSize, spacing, tint);
 
     rlPopMatrix();
 }
@@ -1107,7 +1110,7 @@ void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSiz
                          font.recs[index].width + 2.0f*font.glyphPadding, font.recs[index].height + 2.0f*font.glyphPadding };
 
     // Draw the character texture on the screen
-    DrawTexturePro(font.texture, srcRec, dstRec, (Vector2){ 0, 0 }, 0.0f, tint);
+    DrawTexturePro(font.texture, srcRec, dstRec, CLITERAL(Vector2){ 0, 0 }, 0.0f, tint);
 }
 
 // Draw multiple character (codepoints)
@@ -1133,7 +1136,7 @@ void DrawTextCodepoints(Font font, const int *codepoints, int count, Vector2 pos
         {
             if ((codepoints[i] != ' ') && (codepoints[i] != '\t'))
             {
-                DrawTextCodepoint(font, codepoints[i], (Vector2){ position.x + textOffsetX, position.y + textOffsetY }, fontSize, tint);
+                DrawTextCodepoint(font, codepoints[i], CLITERAL(Vector2){ position.x + textOffsetX, position.y + textOffsetY }, fontSize, tint);
             }
 
             if (font.glyphs[index].advanceX == 0) textOffsetX += ((float)font.recs[index].width*scaleFactor + spacing);
@@ -1548,7 +1551,7 @@ int TextFindIndex(const char *text, const char *find)
 {
     int position = -1;
 
-    char *ptr = strstr(text, find);
+    char *ptr = (char *)strstr(text, find);
 
     if (ptr != NULL) position = (int)(ptr - text);
 
@@ -1984,10 +1987,10 @@ static Font LoadBMFont(const char *fileName)
 
     // Compose correct path using route of .fnt file (fileName) and imFileName
     char *imPath = NULL;
-    char *lastSlash = NULL;
+    const char *lastSlash = NULL;
 
     lastSlash = strrchr(fileName, '/');
-    if (lastSlash == NULL) lastSlash = strrchr(fileName, '\\');
+    if (lastSlash == NULL) lastSlash = (char *)strrchr(fileName, '\\');
 
     if (lastSlash != NULL)
     {
@@ -2044,7 +2047,7 @@ static Font LoadBMFont(const char *fileName)
         fileTextPtr += (lineBytes + 1);
 
         // Get character rectangle in the font atlas texture
-        font.recs[i] = (Rectangle){ (float)charX, (float)charY, (float)charWidth, (float)charHeight };
+        font.recs[i] = CLITERAL(Rectangle){ (float)charX, (float)charY, (float)charWidth, (float)charHeight };
 
         // Save data properly in sprite font
         font.glyphs[i].value = charId;
@@ -2070,5 +2073,7 @@ static Font LoadBMFont(const char *fileName)
     return font;
 }
 #endif
+
+} // namespace Raylib
 
 #endif      // SUPPORT_MODULE_RTEXT

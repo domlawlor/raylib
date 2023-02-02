@@ -57,6 +57,9 @@
     #define MAX_TRACELOG_MSG_LENGTH     128     // Max length of one trace-log message
 #endif
 
+namespace Raylib 
+{
+
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
@@ -346,7 +349,7 @@ char *LoadFileText(const char *fileName)
 
                 // WARNING: \r\n is converted to \n on reading, so,
                 // read bytes count gets reduced by the number of lines
-                if (count < size) text = RL_REALLOC(text, count + 1);
+                if (count < size) text = (char *)RL_REALLOC(text, count + 1);
 
                 // Zero-terminate the string
                 text[count] = '\0';
@@ -477,3 +480,5 @@ static int android_close(void *cookie)
     return 0;
 }
 #endif  // PLATFORM_ANDROID
+
+} // namespace Raylib

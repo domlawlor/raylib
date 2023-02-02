@@ -68,6 +68,9 @@
     typedef enum bool { false = 0, true = !false } bool;
 #endif
 
+namespace Raylib
+{
+
 #if !defined(RL_VECTOR2_TYPE)
 // Vector2 type
 typedef struct Vector2 {
@@ -141,6 +144,8 @@ float GetGesturePinchAngle(void);                       // Get gesture pinch ang
 }
 #endif
 
+} // namespace Raylib
+
 #endif // GESTURES_H
 
 /***********************************************************************************
@@ -192,11 +197,14 @@ float GetGesturePinchAngle(void);                       // Get gesture pinch ang
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
 
+namespace Raylib
+{
+
 // Gestures module state context [136 bytes]
 typedef struct {
     unsigned int current;               // Current detected gesture
     unsigned int enabledFlags;          // Enabled gestures flags
-    struct {
+    struct Touch {
         int firstId;                    // Touch id for first touch point
         int pointCount;                 // Touch points counter
         double eventTime;               // Time stamp when an event happened
@@ -233,9 +241,9 @@ typedef struct {
 // Global Variables Definition
 //----------------------------------------------------------------------------------
 static GesturesData GESTURES = {
-    .Touch.firstId = -1,
     .current = GESTURE_NONE,        // No current gesture detected
-    .enabledFlags = 0b0000001111111111  // All gestures supported by default
+    .enabledFlags = 0b0000001111111111,  // All gestures supported by default
+    .Touch = { .firstId = -1 },
 };
 
 //----------------------------------------------------------------------------------
@@ -294,7 +302,7 @@ void ProcessGestureEvent(GestureEvent event)
 
             GESTURES.Touch.firstId = event.pointId[0];
 
-            GESTURES.Drag.vector = (Vector2){ 0.0f, 0.0f };
+            GESTURES.Drag.vector = CLITERAL(Vector2){ 0.0f, 0.0f };
         }
         else if (event.touchAction == TOUCH_ACTION_UP)
         {
@@ -327,7 +335,7 @@ void ProcessGestureEvent(GestureEvent event)
                 GESTURES.current = GESTURE_NONE;
             }
 
-            GESTURES.Touch.downDragPosition = (Vector2){ 0.0f, 0.0f };
+            GESTURES.Touch.downDragPosition = CLITERAL(Vector2){ 0.0f, 0.0f };
             GESTURES.Touch.pointCount = 0;
         }
         else if (event.touchAction == TOUCH_ACTION_MOVE)
@@ -406,7 +414,7 @@ void ProcessGestureEvent(GestureEvent event)
         {
             GESTURES.Pinch.distance = 0.0f;
             GESTURES.Pinch.angle = 0.0f;
-            GESTURES.Pinch.vector = (Vector2){ 0.0f, 0.0f };
+            GESTURES.Pinch.vector = CLITERAL(Vector2){ 0.0f, 0.0f };
             GESTURES.Touch.pointCount = 0;
 
             GESTURES.current = GESTURE_NONE;
@@ -568,5 +576,7 @@ static double rgGetCurrentTime(void)
 
     return time;
 }
+
+} // namespace Raylib
 
 #endif // GESTURES_IMPLEMENTATION

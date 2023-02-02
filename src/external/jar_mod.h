@@ -121,7 +121,7 @@ typedef struct {
     muchar  effect;
 } note;
 
-typedef struct {
+typedef struct _module {
     muchar  title[20];
     sample  samples[31];
     muchar  length; // length of tablepos
@@ -129,7 +129,7 @@ typedef struct {
     muchar  patterntable[128];
     muchar  signature[4];
     muchar  speed;
-} module;
+} _module;
 
 #pragma pack()
 
@@ -166,7 +166,7 @@ typedef struct {
 } channel;
 
 typedef struct {
-    module  song;
+	_module  song;
     char*   sampledata[31];
     note*   patterndata[128];
 
@@ -1148,7 +1148,8 @@ static bool jar_mod_load( jar_mod_context_t * modctx, void * mod_data, int mod_d
             {
                 // 15 Samples modules support
                 // Shift the whole datas to make it look likes a standard 4 channels mod.
-                memcopy(&(modctx->song.signature), "M.K.", 4);
+				const char * sig = "M.K.";
+                memcopy(&(modctx->song.signature), (void *)sig, 4);
                 memcopy(&(modctx->song.length), &(modctx->song.samples[15]), 130);
                 memclear(&(modctx->song.samples[15]), 0, 480);
                 modmemory += 600;
@@ -1535,7 +1536,7 @@ mulong jar_mod_load_file(jar_mod_context_t * modctx, const char* filename)
         
         if(fsize && fsize < 32*1024*1024)
         {
-            modctx->modfile = JARMOD_MALLOC(fsize);
+            modctx->modfile = (muchar *)JARMOD_MALLOC(fsize);
             modctx->modfilesize = fsize;
             memset(modctx->modfile, 0, fsize);
             fread(modctx->modfile, fsize, 1, f);

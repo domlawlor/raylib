@@ -321,6 +321,9 @@
 typedef enum bool { false = 0, true = !false } bool;
 #endif
 
+namespace Raylib
+{
+
 #if !defined(RL_MATRIX_TYPE)
 // Matrix, 4x4 components, column major, OpenGL style, right handed
 typedef struct Matrix {
@@ -748,6 +751,8 @@ RLAPI void rlLoadDrawQuad(void);     // Load and draw a quad
 }
 #endif
 
+} // namespace Raylib
+
 #endif // RLGL_H
 
 /***********************************************************************************
@@ -936,6 +941,9 @@ RLAPI void rlLoadDrawQuad(void);     // Load and draw a quad
 #ifndef RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE2
     #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE2  "texture2"          // texture2 (texture slot active 2)
 #endif
+
+namespace Raylib
+{
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -4688,5 +4696,7 @@ static Matrix rlMatrixMultiply(Matrix left, Matrix right)
 
     return result;
 }
+
+} // namespace Raylib
 
 #endif  // RLGL_IMPLEMENTATION

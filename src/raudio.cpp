@@ -268,6 +268,9 @@ typedef struct tagBITMAPINFOHEADER {
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
 
+namespace Raylib
+{
+
 // Music context type
 // NOTE: Depends on data structure provided by the library
 // in charge of reading the different file types
@@ -371,7 +374,7 @@ static AudioData AUDIO = {          // Global AUDIO context
     // After some math, considering a sampleRate of 48000, a buffer refill rate of 1/60 seconds and a
     // standard double-buffering system, a 4096 samples buffer has been chosen, it should be enough
     // In case of music-stalls, just increase this number
-    .Buffer.defaultSize = 0
+    .Buffer = { .defaultSize = 0 }
 };
 
 //----------------------------------------------------------------------------------
@@ -544,7 +547,7 @@ AudioBuffer *LoadAudioBuffer(ma_format format, ma_uint32 channels, ma_uint32 sam
         return NULL;
     }
 
-    if (sizeInFrames > 0) audioBuffer->data = RL_CALLOC(sizeInFrames*channels*ma_get_bytes_per_sample(format), 1);
+    if (sizeInFrames > 0) audioBuffer->data = (unsigned char *)RL_CALLOC(sizeInFrames*channels*ma_get_bytes_per_sample(format), 1);
 
     // Audio data runs through a format converter
     ma_data_converter_config converterConfig = ma_data_converter_config_init(format, AUDIO_DEVICE_FORMAT, channels, AUDIO_DEVICE_CHANNELS, sampleRate, AUDIO.System.device.sampleRate);
@@ -758,7 +761,7 @@ Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int
             wave.data = (short *)RL_MALLOC(wave.frameCount*wave.channels*sizeof(short));
 
             // NOTE: We are forcing conversion to 16bit sample size on reading
-            drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, wave.data);
+            drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, (drwav_int16 *)wave.data);
         }
         else TRACELOG(LOG_WARNING, "WAVE: Failed to load WAV data");
 
@@ -1257,7 +1260,7 @@ Music LoadMusicStream(const char *fileName)
 #if defined(SUPPORT_FILEFORMAT_WAV)
     else if (IsFileExtension(fileName, ".wav"))
     {
-        drwav *ctxWav = RL_CALLOC(1, sizeof(drwav));
+        drwav *ctxWav = (drwav *)RL_CALLOC(1, sizeof(drwav));
         bool success = drwav_init_file(ctxWav, fileName, NULL);
 
         music.ctxType = MUSIC_AUDIO_WAV;
@@ -1316,7 +1319,7 @@ Music LoadMusicStream(const char *fileName)
 #if defined(SUPPORT_FILEFORMAT_MP3)
     else if (IsFileExtension(fileName, ".mp3"))
     {
-        drmp3 *ctxMp3 = RL_CALLOC(1, sizeof(drmp3));
+        drmp3 *ctxMp3 = (drmp3 *)RL_CALLOC(1, sizeof(drmp3));
         int result = drmp3_init_file(ctxMp3, fileName, NULL);
 
         music.ctxType = MUSIC_AUDIO_MP3;
@@ -1360,7 +1363,7 @@ Music LoadMusicStream(const char *fileName)
 #if defined(SUPPORT_FILEFORMAT_MOD)
     else if (IsFileExtension(fileName, ".mod"))
     {
-        jar_mod_context_t *ctxMod = RL_CALLOC(1, sizeof(jar_mod_context_t));
+        jar_mod_context_t *ctxMod = (jar_mod_context_t *)RL_CALLOC(1, sizeof(jar_mod_context_t));
         jar_mod_init(ctxMod);
         int result = jar_mod_load_file(ctxMod, fileName);
 
@@ -1428,7 +1431,7 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
 #if defined(SUPPORT_FILEFORMAT_WAV)
     else if (strcmp(fileType, ".wav") == 0)
     {
-        drwav *ctxWav = RL_CALLOC(1, sizeof(drwav));
+        drwav *ctxWav = (drwav *)RL_CALLOC(1, sizeof(drwav));
 
         bool success = drwav_init_memory(ctxWav, (const void *)data, dataSize, NULL);
 
@@ -1467,7 +1470,7 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
 #if defined(SUPPORT_FILEFORMAT_MP3)
     else if (strcmp(fileType, ".mp3") == 0)
     {
-        drmp3 *ctxMp3 = RL_CALLOC(1, sizeof(drmp3));
+        drmp3 *ctxMp3 = (drmp3 *)RL_CALLOC(1, sizeof(drmp3));
         int success = drmp3_init_memory(ctxMp3, (const void*)data, dataSize, NULL);
 
         music.ctxType = MUSIC_AUDIO_MP3;
@@ -1905,7 +1908,7 @@ float GetMusicTimePlayed(Music music)
         {
             uint64_t framesPlayed = 0;
 
-            jar_xm_get_position(music.ctxData, NULL, NULL, NULL, &framesPlayed);
+            jar_xm_get_position((jar_xm_context_t *)music.ctxData, NULL, NULL, NULL, &framesPlayed);
             secondsPlayed = (float)framesPlayed/music.stream.sampleRate;
         }
         else
@@ -2536,5 +2539,7 @@ static bool SaveFileText(const char *fileName, char *text)
 #endif
 
 #undef AudioBuffer
+
+} // namespace raylib
 
 #endif      // SUPPORT_MODULE_RAUDIO

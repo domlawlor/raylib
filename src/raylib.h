@@ -189,6 +189,10 @@
     #define RL_BOOL_TYPE
 #endif
 
+
+namespace Raylib
+{
+
 // Vector2, 2 components
 typedef struct Vector2 {
     float x;                // Vector x component
@@ -1575,5 +1579,7 @@ RLAPI void DetachAudioStreamProcessor(AudioStream stream, AudioCallback processo
 #if defined(__cplusplus)
 }
 #endif
+
+} // namespace Raylib
 
 #endif // RAYLIB_H
